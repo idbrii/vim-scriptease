@@ -51,6 +51,15 @@ g!{motion}              Call |eval()| on the text the motion moves over and
                         number combinations will be translated to the
                         appropriate file name and line number.
 
+                                                *scriptease-:MapHelp*
+:MapHelp {subject} [mode]
+                        Like using |:verbose| |map|, but falls back to help if
+                        no map is found (to show built-in maps). See
+                        |maparg()| for {mode}.
+
+:MapHelp! {subject} [mode]
+                        Like |:MapHelp|, but use |:Verbose|.
+
                                                 *scriptease-:PP*
 :PP {expr}              Pretty print the value of {expr}.
 
