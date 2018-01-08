@@ -750,7 +750,15 @@ function! scriptease#maphelp(verbose, subject, ...)
     if mode != 'n' && len(mode) > 0
       let prefix = mode .'_'
     endif
-    exec 'help '. prefix . s:ConvertCtrlFromMapToHelp(a:subject)
+    try
+      exec 'help '. prefix . s:ConvertCtrlFromMapToHelp(a:subject)
+    catch /^Vim\%((\a\+)\)\=:E149/
+      let searching_modes = mode
+      if len(mode) == 0
+        let searching_modes = 'nvo'
+      endif
+      echo 'No map found for '. a:subject .'. Only searching mode '. searching_modes .'. Try a more specific mode.'
+    endtry
   endif
 endf
 
