@@ -728,8 +728,8 @@ function! s:ConvertCtrlFromMapToHelp(subject)
   " Ctrl is input differently for maps and help. Users always use map-style
   " input, so when we're looking in help we must convert to help-style.
   let query = a:subject
-  let query = substitute(query, '\v\<C-(\w+)\>', 'CTRL-\1', '')
-  let query = substitute(query, '\v\<C-(\w+)\>', '_CTRL-\1', 'g')
+  let query = substitute(query, '\v\<C-((\w+|\S))\>', 'CTRL-\1', '')
+  let query = substitute(query, '\v\<C-((\w+|\S))\>', '_CTRL-\1', 'g')
   return query
 endf
 function! scriptease#maphelp(verbose, subject, ...)
