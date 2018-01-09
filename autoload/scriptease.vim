@@ -736,29 +736,51 @@ function! scriptease#maphelp(verbose, subject, ...)
   " First argument controls verbosity.
   " Second argument is subject of map/help lookup.
   " Optional third argument restricts search to a vim-mode.
+  let specific_query = ''
   if a:0 == 1
-    let mode = a:1
+    let specific_query = a:1
+    let searching_modes = [ a:1 ]
   else
-    let mode = ''
+    let select = 's' " work around wonky syntax highlighting
+    let searching_modes = [ '', 'i', 'c', select, 'x', 'l' ]
   endif
 
-  let map_lhs = maparg(a:subject, mode)
-  if len(map_lhs) > 0
-    exec a:verbose . mode .'map '. a:subject
-  else
-    let prefix = ''
-    if mode != 'n' && len(mode) > 0
-      let prefix = mode .'_'
+  let found_map = 0
+  for mode in searching_modes
+    let map_lhs = maparg(a:subject, mode)
+    if len(map_lhs) > 0
+      exec a:verbose . mode .'map '. a:subject
+      let found_map = 1
     endif
-    try
-      exec 'help '. prefix . s:ConvertCtrlFromMapToHelp(a:subject)
-    catch /^Vim\%((\a\+)\)\=:E149/
-      let searching_modes = mode
-      if len(mode) == 0
-        let searching_modes = 'nvo'
+  endfor
+
+  if found_map == 0
+    for mode in searching_modes
+      let prefix = ''
+      if mode != 'n' && len(mode) > 0
+        let prefix = mode .'_'
       endif
-      echo 'No map found for '. a:subject .'. Only searching mode '. searching_modes .'. Try a more specific mode.'
-    endtry
+      try
+        exec 'help '. prefix . s:ConvertCtrlFromMapToHelp(a:subject)
+        let found_map = 1
+        " Can't open multiple help entries.
+        break
+
+      catch /^Vim\%((\a\+)\)\=:E149/
+      endtry
+    endfor
+  endif
+
+  if found_map == 0
+    if searching_modes[0] == ''
+      let searching_modes[0] = 'nvo'
+    endif
+    let searching_modes = join(searching_modes, '')
+    let plural = ''
+    if len(searching_modes) > 1
+      let plural = 's'
+    endif
+    echo 'No mapping found for '. a:subject .' for mode'. plural .' '. searching_modes .'.'
   endif
 endf
 
