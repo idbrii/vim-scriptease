@@ -225,8 +225,8 @@ function! s:opfunc(t) abort
   return @@
 endfunction
 
-function! s:noop(...)
-  return a:1
+function! s:noop(mode, expr, original)
+  return a:expr
 endf
 
 function! scriptease#filterop(...) abort
@@ -238,12 +238,12 @@ function! scriptease#filterop(...) abort
   try
     set selection=inclusive clipboard-=unnamed clipboard-=unnamedplus
     let expr = s:opfunc(a:1)
-    " TODO: Consider using a single function with a mode variable for
-    " simplicity.
-    let code = s:function(get(g:, 'scriptease_prefilter', 's:noop'))(expr)
+    let filter_func = s:function(get(g:, 'scriptease_filter', 's:noop'))
+    let code = filter_func('pre', expr, 0, expr)
+    let filter_modified = code != expr
     let code = s:gsub(code,'\n%(\s*\\)=','')
     let @@ = matchstr(expr, '^\_s\+').scriptease#dump(eval(code)).matchstr(expr, '\_s\+$')
-    let @@ = s:function(get(g:, 'scriptease_postfilter', 's:noop'))(@@, expr)
+    let @@ = filter_func('post', @@, filter_modified, expr)
     if @@ !~# '^\n*$'
       normal! gvp
     endif

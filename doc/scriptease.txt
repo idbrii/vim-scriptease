@@ -34,19 +34,19 @@ g==                     replace it with the result.  If you press g== on a
 Define these filter functions to modify selection before it's passed to
 |eval()| so you can convert your expressions to vim-compatible ones.
 >
- function! StripFloatSuffix_Pre(expr)
-   " Strip out f float suffixes.
-   return substitute(a:expr, '\v\C(\d)f>', '\1', 'g')
- endf
- function! StripFloatSuffix_Post(expr, original)
-   if My_ScripteasePreFilter(a:original) != a:expr
-     " We had f suffixes, so restore them.
-     return substitute(a:expr, '\v\C([0-9.]+)>', '\1f', 'g')
-   endif
-   return a:expr
- endf
- let g:scriptease_prefilter = 'StripFloatSuffix_Pre'
- let g:scriptease_postfilter = 'StripFloatSuffix_Post'
+    function! StripFloatSuffix(mode, expr, filter_modified, original)
+        if a:mode == 'pre'
+            " Strip out f float suffixes.
+            return substitute(a:expr, '\v\C(\d)f>', '\1', 'g')
+        else
+            if a:filter_modified
+                " We had f suffixes, so restore them.
+                return substitute(a:expr, '\v\C([0-9.]+)>', '\1f', 'g')
+            endif
+            return a:expr
+        endif
+    endf
+    let g:scriptease_filter = 'StripFloatSuffix'
 <
 
                                                 *scriptease-g!*
